@@ -81,8 +81,8 @@ INPUT_TEXT = st.text_area("Text to summarize", key="input1")
 if INPUT_TEXT != "":
     input_ids = tokenizer.encode(
         INPUT_TEXT, return_tensors="tf", max_length=512)
-    line_input_text = INPUT_TEXT.splitlines()
-    st.info("YOUR TEXT TO SUMMARIZE")
+    
+    st.info(f"YOUR TEXT TO SUMMARIZE: {len(INPUT_TEXT)} words - Estimated reading time to memorize: {int(len(INPUT_TEXT)/200)} minutes")
 
     st.write(INPUT_TEXT)
     st.header("YOUR TEXT SUMMARY")
@@ -93,13 +93,12 @@ if INPUT_TEXT != "":
         st.balloons()
         st.success("SUCCESSFULLY SUMMARIZE YOUR TEXT")
         elapse = time.time() - start_time
-        st.info('Time to summary text in seconds: {:5.2f}'.format(elapse))
+        st.info('Time to summary text: {:5.2f} seconds'.format(elapse))
         st.success("HERE ARE THE SUMMARY TEXT")
         
         for i in extractive_summary:
-            if i.text in INPUT_TEXT:
-                st.markdown(i)
-                st.markdown(f'***Line is IN the document***')
+            st.markdown(i)
+                
         
 
     if st.checkbox('Deep learning - Abtractive GENSUM summary', key='extractive'):
@@ -110,28 +109,19 @@ if INPUT_TEXT != "":
         summary = tokenizer.decode(
             pred[0], skip_special_tokens=True, clean_up_tokenization_spaces=False)
         summary = summary.replace("<extra_id_0> ", "")
-        summary = summary.replace(" . ", " .\n")
+        summary = summary.replace(" . ", ".\n")
         st.balloons()
         st.success("SUCCESSFULLY SUMMARIZE YOUR TEXT")
         elapse = time.time() - start_time
-        st.info('Time to summary text in seconds: {:5.2f}'.format(elapse))
-        st.success("HERE ARE THE SUMMARY TEXT")
+        st.info('Time to summary text: {:5.2f} seconds'.format(elapse))
+        st.success(f"HERE ARE THE SUMMARY TEXT")
         
         lines = summary.splitlines()
         for line in lines:
             if line.endswith('.'):
-                st.write(line)
-                if line in INPUT_TEXT:
-                    st.markdown('Line is in the document')
-                else:
-                    st.markdown('***Line is NOT IN the document***')
+                s = line.split()
+                s[0] = s[0].capitalize()
+                s = ' '.join(s)
+                st.write(s)
+                
 
-
-    # if st.checkbox('Comparison between Extractive summarization and Abstractive summarization', key='comparison'):
-        
-    #     col1, col2 = st.beta_columns(2)
-    #     with col1:
-    #         st.subheader('Extractive summarization')
-
-    #     with col2:
-    #         st.subheader('Abstractive summarization')
