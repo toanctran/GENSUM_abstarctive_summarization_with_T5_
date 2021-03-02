@@ -9,6 +9,10 @@ from sklearn.feature_extraction.text import CountVectorizer
 import en_core_web_sm
 
 st.set_page_config(layout="wide")
+
+    #################################
+    # EXTRACTIVE TEXT SUMMARIZATION #
+    #################################
 def summarization(text):
     
     nlp = en_core_web_sm.load()
@@ -62,18 +66,25 @@ def summarization(text):
     return summary
 
 st.title('ABSTRACTIVE TEXT SUMMARIZATION')
-st.text('powered by Tensorflow 2.0 and Transformers 2.9.1')
+st.text('powered by Tensorflow 2.4.1')
 
-st.info('Wait to loading model base')
-model_t5 = TFT5ForConditionalGeneration.from_pretrained('t5-base')
-task_specific_params = model_t5.config.task_specific_params
-if task_specific_params is not None:
-    model_t5.config.update(task_specific_params.get("summarization", {}))
-model_t5.config.max_length = 150
-model_t5.load_weights('model_base/saved_weight_model_large')
-tokenizer = T5Tokenizer.from_pretrained('t5-base')
-st.success("Successfully load model")
 
+    #####################
+    #    LOAD MODEL     #
+    #####################
+with st.spinner('Wait to loading model base'):
+    model_t5 = TFT5ForConditionalGeneration.from_pretrained('t5-base')
+    task_specific_params = model_t5.config.task_specific_params
+    if task_specific_params is not None:
+        model_t5.config.update(task_specific_params.get("summarization", {}))
+    model_t5.config.max_length = 150
+    model_t5.load_weights('model_base/saved_weight_model_large')
+    tokenizer = T5Tokenizer.from_pretrained('t5-base')
+st.balloons()
+
+    ################################
+    #    GET DOCUMENT TO SUMMARY   #
+    ################################
 st.header('TEXT TO SUMMARIZE')
 st.info('Press Ctrl + Enter to apply input text')
 INPUT_TEXT = st.text_area("Text to summarize", key="input1")
@@ -82,27 +93,40 @@ if INPUT_TEXT != "":
     input_ids = tokenizer.encode(
         INPUT_TEXT, return_tensors="tf", max_length=512)
     
-    st.info(f"YOUR TEXT TO SUMMARIZE: {len(INPUT_TEXT)} words - Estimated reading time to memorize: {(len(INPUT_TEXT)/200):.2f} minutes")
-
+    st.subheader("YOUR TEXT TO SUMMARIZE")
     st.write(INPUT_TEXT)
+
+    ####################################
+    #    DISPLAY THE SUMMARY RESULT    #
+    ####################################
     st.header("YOUR TEXT SUMMARY")
     if st.checkbox('Extractive summarization', key='extractive'):
+
+
+
+    #################################
+    # EXTRACTIVE TEXT SUMMARIZATION #
+    #################################
         st.subheader('EXTRACTIVE SUMMARY')
         with st.spinner('Summarizing your text using abstractive summarization. Please wait.....'):
             start_time = time.time()
             extractive_summary = summarization(INPUT_TEXT)
         st.balloons()
-        st.success("SUCCESSFULLY SUMMARIZE YOUR TEXT")
         elapse = time.time() - start_time
-        st.info('Time to summary text: {:5.2f} seconds'.format(elapse))
-        st.error("YOUR EXTRACTIVE SUMMARY TEXT")
+        st.info('Processing time: {:5.2f} seconds'.format(elapse))
+        st.error("RESULT")
         word_number_1 = 0
         for i in extractive_summary:
             st.markdown(i)
             word_number_1 += len(i)
-        st.warning(f'Length of summary: {word_number_1} words - Estimating reading time to memorize: {(word_number_1/200):.2f} minutes')
-        st.warning(f'Length of summary is {(word_number_1 * 100 /len(INPUT_TEXT)):.2f}% of document - Saving you {((len(INPUT_TEXT) - word_number_1)/200):.2f} minutes to read.')
+        st.warning(f'BEFORE SUMMARIZATION: {len(INPUT_TEXT)} words, ~{(len(INPUT_TEXT)/200):.2f} minutes to read')
+        st.warning(f'AFTER SUMMARIZATION: {word_number_1} words, ~{(word_number_1/200):.2f} minutes to read')
+        st.warning(f'Length of summary is {(word_number_1 * 100 /len(INPUT_TEXT)):.2f}% length of document - Saving you {((len(INPUT_TEXT) - word_number_1)/200):.2f} minutes to read.')
 
+
+    ##################################
+    # ABSTRACTIVE TEXT SUMMARIZATION #
+    ##################################
     st.subheader('ABSTRACTIVE GENSUM SUMMARY')
     with st.spinner('Summarizing your text using abstractive summarization. Please wait.....'):
         start_time = time.time()
@@ -116,10 +140,9 @@ if INPUT_TEXT != "":
         elapse = time.time() - start_time
     
     st.balloons()
-    st.success("SUCCESSFULLY SUMMARIZE YOUR TEXT")
     
-    st.info('Time to summary text: {:5.2f} seconds'.format(elapse))
-    st.error("YOUR GENSUM SUMMARY TEXT")
+    st.info('Processing time: {:5.2f} seconds'.format(elapse))
+    st.error("RESULT")
     word_number = 0
     lines = summary.splitlines()
     for line in lines:
@@ -130,5 +153,6 @@ if INPUT_TEXT != "":
             s[0] = s[0].capitalize()
             s = ' '.join(s)
             st.write(s)
-    st.warning(f'Length of summary: {word_number} words - Estimating reading time to memorize: {(word_number/200):.2f} minutes.')     
-    st.warning(f'Length of summary is {(word_number * 100 /len(INPUT_TEXT)):.2f}% of document - Saving you {((len(INPUT_TEXT) - word_number )/200):.2f} minutes to read.')
+    st.warning(f'BEFORE SUMMARIZATION: {len(INPUT_TEXT)} words, ~{(len(INPUT_TEXT)/200):.2f} minutes to read')
+    st.warning(f'AFTER SUMMARIZATION: {word_number} words, ~{(word_number/200):.2f} minutes to read')
+    st.warning(f'Length of summary is {(word_number * 100 /len(INPUT_TEXT)):.2f}% length of document - Saving you {((len(INPUT_TEXT) - word_number)/200):.2f} minutes to read.')
