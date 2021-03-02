@@ -69,7 +69,7 @@ model_t5 = TFT5ForConditionalGeneration.from_pretrained('t5-base')
 task_specific_params = model_t5.config.task_specific_params
 if task_specific_params is not None:
     model_t5.config.update(task_specific_params.get("summarization", {}))
-
+model_t5.config.max_length = 150
 model_t5.load_weights('model_base/saved_weight_model_large')
 tokenizer = T5Tokenizer.from_pretrained('t5-base')
 st.success("Successfully load model")
@@ -87,41 +87,51 @@ if INPUT_TEXT != "":
     st.write(INPUT_TEXT)
     st.header("YOUR TEXT SUMMARY")
     if st.checkbox('Extractive summarization', key='extractive'):
-        st.info("Summarizing your text using extractive summarization. Please wait.....")
-        start_time = time.time()
-        extractive_summary = summarization(INPUT_TEXT)
+        st.subheader('EXTRACTIVE SUMMARY')
+        with st.spinner('Summarizing your text using abstractive summarization. Please wait.....'):
+            start_time = time.time()
+            extractive_summary = summarization(INPUT_TEXT)
         st.balloons()
         st.success("SUCCESSFULLY SUMMARIZE YOUR TEXT")
         elapse = time.time() - start_time
         st.info('Time to summary text: {:5.2f} seconds'.format(elapse))
-        st.success("HERE ARE THE SUMMARY TEXT")
-        
+        st.error("YOUR EXTRACTIVE SUMMARY TEXT")
+        word_number_1 = 0
         for i in extractive_summary:
             st.markdown(i)
+            word_number_1 += len(i)
+        st.warning(f'Length of summary: {word_number_1} words') 
                 
         
 
-    if st.checkbox('Deep learning - Abtractive GENSUM summary', key='extractive'):
-        st.info("Summarizing your text using abstractive summarization. Please wait.....")
+    
+
+    st.subheader('ABSTRACTIVE GENSUM SUMMARY')
+    with st.spinner('Summarizing your text using abstractive summarization. Please wait.....'):
         start_time = time.time()
-        model_t5.config.max_length = 150
+        
         pred = model_t5.generate(input_ids)
+        
         summary = tokenizer.decode(
             pred[0], skip_special_tokens=True, clean_up_tokenization_spaces=False)
         summary = summary.replace("<extra_id_0> ", "")
         summary = summary.replace(" . ", ".\n")
-        st.balloons()
-        st.success("SUCCESSFULLY SUMMARIZE YOUR TEXT")
         elapse = time.time() - start_time
-        st.info('Time to summary text: {:5.2f} seconds'.format(elapse))
-        st.success(f"HERE ARE THE SUMMARY TEXT")
-        
-        lines = summary.splitlines()
-        for line in lines:
-            if line.endswith('.'):
-                s = line.split()
-                s[0] = s[0].capitalize()
-                s = ' '.join(s)
-                st.write(s)
-                
+    
+    st.balloons()
+    st.success("SUCCESSFULLY SUMMARIZE YOUR TEXT")
+    
+    st.info('Time to summary text: {:5.2f} seconds'.format(elapse))
+    st.error("YOUR GENSUM SUMMARY TEXT")
+    word_number = 0
+    lines = summary.splitlines()
+    for line in lines:
+        if line.endswith('.'):
+            
+            s = line.split()
+            word_number += len(s)
+            s[0] = s[0].capitalize()
+            s = ' '.join(s)
+            st.write(s)
+    st.warning(f'Length of summary: {word_number} words')     
 
