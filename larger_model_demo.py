@@ -82,7 +82,7 @@ if INPUT_TEXT != "":
     input_ids = tokenizer.encode(
         INPUT_TEXT, return_tensors="tf", max_length=512)
     
-    st.info(f"YOUR TEXT TO SUMMARIZE: {len(INPUT_TEXT)} words - Estimated reading time to memorize: {int(len(INPUT_TEXT)/200)} minutes")
+    st.info(f"YOUR TEXT TO SUMMARIZE: {len(INPUT_TEXT)} words - Estimated reading time to memorize: {(len(INPUT_TEXT)/200):.2f} minutes")
 
     st.write(INPUT_TEXT)
     st.header("YOUR TEXT SUMMARY")
@@ -100,11 +100,8 @@ if INPUT_TEXT != "":
         for i in extractive_summary:
             st.markdown(i)
             word_number_1 += len(i)
-        st.warning(f'Length of summary: {word_number_1} words') 
-                
-        
-
-    
+        st.warning(f'Length of summary: {word_number_1} words - Estimating reading time to memorize: {(word_number_1/200):.2f} minutes')
+        st.warning(f'Length of summary is {(word_number_1 * 100 /len(INPUT_TEXT)):.2f}% of document - Saving you {((len(INPUT_TEXT) - word_number_1)/200):.2f} minutes to read.')
 
     st.subheader('ABSTRACTIVE GENSUM SUMMARY')
     with st.spinner('Summarizing your text using abstractive summarization. Please wait.....'):
@@ -133,5 +130,5 @@ if INPUT_TEXT != "":
             s[0] = s[0].capitalize()
             s = ' '.join(s)
             st.write(s)
-    st.warning(f'Length of summary: {word_number} words')     
-
+    st.warning(f'Length of summary: {word_number} words - Estimating reading time to memorize: {(word_number/200):.2f} minutes.')     
+    st.warning(f'Length of summary is {(word_number * 100 /len(INPUT_TEXT)):.2f}% of document - Saving you {((len(INPUT_TEXT) - word_number )/200):.2f} minutes to read.')
