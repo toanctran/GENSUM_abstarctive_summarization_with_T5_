@@ -8,7 +8,7 @@ The demo of GENSUM abstarctive text summarization using the Streamlit
 
 ***Step 2*** Download and extract the model file 
 
-* For larger model: Download at  and extract to the root folder of project
+* For larger model: Download at https://drive.google.com/file/d/1-Fy8nn2RqpTLYHcNoCD1lP7Ny_t_mzKS/view?usp=sharing and extract to the root folder of project
 * For smaller model with 60M parameters: Download at https://drive.google.com/file/d/1YnrjXTPPxsNwd0DhCb4_cu6glp0JBdQy/view?usp=sharing and extract to the root folder of project
 
 ***Step 3*** Run streamlit as
